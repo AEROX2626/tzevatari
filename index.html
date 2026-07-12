@@ -1,639 +1,677 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he" dir="rtl" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>שאלון אפיון אתר תכנון פרישה (CFP)</title>
+    <title>צבע טרי | חוויית עיצוב ותחזוקה לבית</title>
+    <meta name="description" content="צבע טרי - המרכז המוביל לתחזוקה ועיצוב הבית. כל הציוד לשיפוץ, עיצוב ותחזוקה במקום אחד.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Heebo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            black: '#111111',
+                            dark: '#222222',
+                            gray: '#F5F5F5',
+                            white: '#FFFFFF',
+                            accent: '#D4AF37' // Subtle premium gold/bronze accent
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        :root {
-            --primary: #1e3a8a;
-            --primary-light: #eff6ff;
-            --primary-hover: #172554;
-            --accent: #d97706;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #0f172a;
-            --text-muted: #475569;
-            --border: #e2e8f0;
-            --border-hover: #cbd5e1;
-            --success: #16a34a;
-            --radius: 16px;
-            --transition: all 0.25s ease;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-
+        /* Custom Styles for Premium Feel */
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .glass-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
 
-        .container {
-            width: 100%;
-            max-width: 700px;
-            background: var(--card);
-            border-radius: var(--radius);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-            padding: 40px;
-            position: relative;
-            overflow: hidden;
+        .glass-header.scrolled {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
 
-        /* Progress Bar */
-        .progress-container {
-            margin-bottom: 32px;
+        /* Masonry Gallery */
+        .masonry-grid {
+            column-count: 1;
+            column-gap: 1.5rem;
+        }
+        @media (min-width: 640px) { .masonry-grid { column-count: 2; } }
+        @media (min-width: 1024px) { .masonry-grid { column-count: 3; } }
+        
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 1.5rem;
         }
 
-        .section-tag {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
+        .hover-trigger .hover-target {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .hover-trigger:hover .hover-target {
+            opacity: 1;
         }
 
-        .progress-bar-wrapper {
-            width: 100%;
-            height: 6px;
-            background-color: var(--border);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 12px;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
         }
 
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--primary), #3b82f6);
-            border-radius: 10px;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .step-counter {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        /* Question Wrapper */
-        .question-card {
-            min-height: 280px;
-            display: none;
-        }
-
-        .question-card.active {
-            display: block;
-            animation: fadeIn 0.4s ease forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            line-height: 1.3;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            margin-bottom: 24px;
-            line-height: 1.5;
-        }
-
-        /* Input Elements */
-        .options-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .option-label {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .option-label:hover {
-            border-color: var(--border-hover);
-            background-color: #f8fafc;
-        }
-
-        .option-label input[type="radio"],
-        .option-label input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-left: 16px;
-            accent-color: var(--primary);
-            cursor: pointer;
-        }
-
-        .option-label.selected {
-            border-color: var(--primary);
-            background-color: var(--primary-light);
-        }
-
-        .option-text {
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 140px;
-            padding: 16px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 1rem;
-            color: var(--text);
-            background-color: #ffffff;
-            outline: none;
-            resize: vertical;
-            transition: var(--transition);
-        }
-
-        textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
-        }
-
-        /* Navigation Buttons */
-        .nav-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 40px;
-            padding-top: 24px;
-            border-t: 1px solid var(--border);
-        }
-
-        button {
-            padding: 12px 28px;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            outline: none;
-        }
-
-        .btn-secondary {
-            background-color: transparent;
-            color: var(--text-muted);
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background-color: var(--border);
-            color: var(--text);
-        }
-
-        .btn-secondary:disabled {
-            color: #cbd5e1;
-            cursor: not-allowed;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: #ffffff;
-            box-shadow: 0 4px 10px rgba(30, 58, 138, 0.15);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            box-shadow: 0 6px 14px rgba(30, 58, 138, 0.2);
-        }
-
-        .btn-success {
-            background-color: var(--success);
-            color: #ffffff;
-            box-shadow: 0 4px 10px rgba(22, 163, 74, 0.15);
-        }
-
-        .btn-success:hover {
-            background-color: #15803d;
-        }
-
-        /* Summary / End Screen */
-        .end-screen {
-            display: none;
-            text-align: center;
-        }
-
-        .end-screen.active {
-            display: block;
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        .success-icon {
-            width: 64px;
-            height: 64px;
-            background-color: #dcfce7;
-            color: var(--success);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0 auto 24px auto;
-            font-size: 2rem;
-            font-weight: bold;
-        }
-
-        .summary-box {
-            background-color: #f1f5f9;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 24px 0;
-            text-align: right;
-            max-height: 250px;
-            overflow-y: auto;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            border: 1px solid var(--border);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        /* Intro Screen */
-        .intro-screen {
-            display: block;
-            text-align: center;
-        }
-
-        .intro-screen.hidden {
-            display: none;
-        }
-
-        .logo-placeholder {
-            font-size: 2.5rem;
-            margin-bottom: 16px;
-            color: var(--primary);
+        /* Parallax Backgrounds */
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
         }
     </style>
 </head>
-<body>
+<body class="bg-brand-gray text-brand-dark overflow-x-hidden">
 
-<div class="container">
-    <!-- INTRO SCREEN -->
-    <div id="intro-screen" class="intro-screen">
-        <div class="logo-placeholder">📋</div>
-        <h2>שאלון אפיון קליל ומקצועי לאתר CFP</h2>
-        <p class="subtitle" style="margin-top: 12px;">כדי שנוכל לבנות את האתר המדויק ביותר לעסק שלך, הכנו שאלון קצר וממוקד. חלק מהשאלות הן שאלות סימון מהירות כדי לחסוך לך זמן. בוא נתחיל!</p>
-        <button class="btn-primary" onclick="startQuestionnaire()" style="margin-top: 16px; width: 100%;">מתחילים</button>
-    </div>
+    <!-- Sticky Navigation -->
+    <header id="navbar" class="fixed w-full top-0 z-50 glass-header py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="#hero" class="flex items-center gap-3 group">
+                <img src="https://images.cdn-files-a.com/uploads/9102992/400_660c035100a7b.png" alt="צבע טרי לוגו" class="h-10 w-auto group-hover:opacity-80 transition-opacity">
+                <span class="font-bold text-xl tracking-tight hidden sm:block">צבע טרי</span>
+            </a>
 
-    <!-- QUESTIONNAIRE CONTENT (Hidden initially) -->
-    <div id="quiz-content" style="display: none;">
-        <div class="progress-container">
-            <div id="section-tag" class="section-tag">חלק 1</div>
-            <div class="progress-bar-wrapper">
-                <div id="progress-bar" class="progress-bar"></div>
+            <!-- Desktop Menu -->
+            <nav class="hidden md:flex gap-8 text-sm font-medium">
+                <a href="#about" class="hover:text-brand-accent transition-colors">אודות</a>
+                <a href="#promotions" class="hover:text-brand-accent transition-colors">מבצעים</a>
+                <a href="#gallery" class="hover:text-brand-accent transition-colors">גלריה</a>
+                <a href="#testimonials" class="hover:text-brand-accent transition-colors">לקוחות ממליצים</a>
+                <a href="#ai-advisor" class="hover:text-brand-accent transition-colors text-brand-accent font-bold">✨ ייעוץ חכם</a>
+                <a href="#contact" class="hover:text-brand-accent transition-colors">צור קשר</a>
+            </nav>
+
+            <!-- CTA & Mobile Toggle -->
+            <div class="flex items-center gap-4">
+                <a href="tel:036054003" class="hidden sm:flex items-center gap-2 bg-brand-black text-white px-5 py-2 rounded-none hover:bg-brand-accent hover:text-white transition-all duration-300 text-sm font-medium">
+                    <i class="fas fa-phone"></i>
+                    <span>03-6054003</span>
+                </a>
+                <button id="mobile-menu-btn" class="md:hidden text-2xl focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
-            <div id="step-counter" class="step-counter">שאלה 1 מתוך 8</div>
         </div>
 
-        <div id="questions-container">
-            <!-- Questions will be dynamically rendered here via JavaScript -->
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t mt-4 absolute w-full left-0 shadow-lg">
+            <div class="flex flex-col px-4 py-6 gap-4 font-medium text-center">
+                <a href="#about" class="mobile-link text-lg">אודות</a>
+                <a href="#promotions" class="mobile-link text-lg">מבצעים</a>
+                <a href="#gallery" class="mobile-link text-lg">גלריה</a>
+                <a href="#testimonials" class="mobile-link text-lg">לקוחות ממליצים</a>
+                <a href="#ai-advisor" class="mobile-link text-lg text-brand-accent font-bold">✨ ייעוץ חכם</a>
+                <a href="#contact" class="mobile-link text-lg">צור קשר</a>
+                <a href="tel:036054003" class="mt-4 inline-block bg-brand-black text-white py-3 rounded-none">חייגו עכשיו: 03-6054003</a>
+            </div>
         </div>
+    </header>
 
-        <div class="nav-controls">
-            <button id="btn-back" class="btn-secondary" onclick="prevStep()" disabled>חזור</button>
-            <button id="btn-next" class="btn-primary" onclick="nextStep()">המשך</button>
+    <!-- Hero Section -->
+    <section id="hero" class="relative h-screen flex items-center justify-center parallax-bg" style="background-image: url('https://images.cdn-files-a.com/ready_uploads/media/2731040/2000_5e120c12b1df1.jpg');">
+        <div class="absolute inset-0 bg-black/60"></div>
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
+            <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c036528180.png" alt="צבע טרי - חנות לתחזוקה ועיצוב" class="h-32 md:h-48 mb-8 object-contain drop-shadow-2xl">
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                חוויית עיצוב ותחזוקה <br>חסרת פשרות לבית שלכם
+            </h1>
+            <p class="text-lg md:text-2xl text-gray-200 mb-10 font-light">
+                המרכז המוביל למוצרי איכות, שיפוץ ושדרוג חללי מגורים.
+            </p>
+            <a href="tel:036054003" class="bg-white text-brand-black px-8 py-4 text-lg font-bold hover:bg-brand-accent hover:text-white transition-all duration-300 tracking-wide flex items-center gap-3">
+                <span>חייגו עכשיו לפרטים</span>
+                <i class="fas fa-arrow-left"></i>
+            </a>
         </div>
-    </div>
+    </section>
 
-    <!-- END SCREEN -->
-    <div id="end-screen" class="end-screen">
-        <div class="success-icon">✓</div>
-        <h2>תודה רבה! השאלון הושלם</h2>
-        <p class="subtitle">התשובות שלך נשמרו בהצלחה. כעת ניתן להעתיק אותן או להוריד כקובץ ולשלוח אלינו.</p>
+    <!-- About Section -->
+    <section id="about" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-center gap-16">
+                <div class="lg:w-1/2">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-brand-accent translate-x-4 translate-y-4"></div>
+                        <img src="https://images.cdn-files-a.com/uploads/9102992/400_660c0582ce0dd.jpg" alt="אודות צבע טרי" class="relative z-10 w-full object-cover h-[500px] grayscale hover:grayscale-0 transition-all duration-700">
+                    </div>
+                </div>
+                <div class="lg:w-1/2">
+                    <h4 class="text-brand-accent font-bold tracking-widest uppercase mb-2">אודותינו</h4>
+                    <h2 class="text-3xl md:text-5xl font-bold text-brand-black mb-6">מומחיות. איכות. <br>עיצוב ללא גבולות.</h2>
+                    <p class="text-gray-600 text-lg mb-6 leading-relaxed">
+                        ברוכים הבאים ל<strong>צבע טרי</strong>, המרכז המוביל לעיצוב ותחזוקת הבית. אנו מציעים קולקציה מוקפדת של פתרונות ומוצרים חיוניים לשיפוץ ושדרוג חללי מגורים, תוך שימת דגש על איכות ללא פשרות, חדשנות ושירות אישי ומסור.
+                    </p>
+                    <p class="text-gray-600 text-lg mb-10 leading-relaxed">
+                        בין אם אתם חובבים בעלי ידי זהב או אנשי מקצוע, בחנות שלנו תמצאו את כל מה שנדרש כדי להפוך כל חזון עיצובי למציאות. נשמח לעמוד לשירותכם בכל עת 🌸.
+                    </p>
+                    <div class="flex items-center gap-6">
+                        <div class="w-16 h-[1px] bg-brand-dark"></div>
+                        <a href="tel:036054003" class="text-xl font-bold text-brand-black hover:text-brand-accent transition-colors">
+                            <i class="fas fa-phone-alt ml-2"></i> 03-6054003
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parallax Promo 1 -->
+    <section class="py-32 relative parallax-bg flex items-center justify-center text-center" style="background-image: url('https://images.cdn-files-a.com/uploads/9102992/2000_63ecc3af1f522.jpg');">
+        <div class="absolute inset-0 bg-brand-black/70"></div>
+        <div class="relative z-10 max-w-4xl mx-auto px-4">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                ✨ כל הציוד לתחזוקה ועיצוב הבית במקום אחד! ✨
+            </h2>
+            <p class="text-xl text-gray-300 mb-10 font-light">
+                לא בטוחים שיש לנו מה שאתם צריכים? המומחים שלנו זמינים לייעוץ מקצועי.
+            </p>
+            <a href="tel:036054003" class="inline-block border-2 border-white text-white px-10 py-3 text-lg font-medium hover:bg-white hover:text-brand-black transition-all duration-300">
+                דברו איתנו עכשיו
+            </a>
+        </div>
+    </section>
+
+    <!-- Promotions Section -->
+    <section id="promotions" class="py-24 bg-brand-gray">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h4 class="text-brand-accent font-bold tracking-widest uppercase mb-2">מבצעים חמים</h4>
+            <h2 class="text-3xl md:text-4xl font-bold text-brand-black mb-16">אל תפספסו את ההזדמנות</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Promo Assets -->
+                <div class="bg-white p-4 shadow-sm hover:shadow-xl transition-shadow duration-300 group">
+                    <div class="overflow-hidden relative">
+                        <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c0cb6c3c67.png" alt="מבצע" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 shadow-sm hover:shadow-xl transition-shadow duration-300 group">
+                    <div class="overflow-hidden relative">
+                        <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c0cb741f95.png" alt="מבצע" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 shadow-sm hover:shadow-xl transition-shadow duration-300 group">
+                    <div class="overflow-hidden relative">
+                        <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c0cb73f35e.png" alt="מבצע" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 shadow-sm hover:shadow-xl transition-shadow duration-300 group lg:col-start-2">
+                    <div class="overflow-hidden relative">
+                        <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c0cb73e6e2.png" alt="מבצע" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 shadow-sm hover:shadow-xl transition-shadow duration-300 group">
+                    <div class="overflow-hidden relative">
+                        <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c0cb6c3d3c.jpg" alt="מבצע" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section (Masonry) -->
+    <section id="gallery" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h4 class="text-brand-accent font-bold tracking-widest uppercase mb-2">השראה</h4>
+                <h2 class="text-3xl md:text-4xl font-bold text-brand-black">גלריית עבודות ומוצרים</h2>
+            </div>
+            
+            <div class="masonry-grid">
+                <!-- Gallery Assets Mapping -->
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c079ced761.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c079cca760.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c079cc3a8a.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c079c6801f.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c079cc7d41.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c079c8168b.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c079cda04f.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c079cc960a.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c07a7cdbe6.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c07a7d574e.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c07a7d43c5.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c07a7db7d9.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c07a7dbb27.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c07a7f2eaf.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="masonry-item hover-trigger relative cursor-pointer overflow-hidden bg-gray-100">
+                    <img src="https://images.cdn-files-a.com/uploads/9102992/2000_660c07a803808.jpg" class="w-full h-auto object-cover transition-transform duration-700 hover-trigger:scale-110" alt="גלריה">
+                    <div class="hover-target absolute inset-0 bg-black/40 flex justify-center items-center backdrop-blur-sm">
+                        <i class="fas fa-expand text-white text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-24 bg-brand-gray">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h4 class="text-brand-accent font-bold tracking-widest uppercase mb-2">⭐️ לקוחות מרוצים ⭐️</h4>
+                <h2 class="text-3xl md:text-4xl font-bold text-brand-black">מה אומרים עלינו</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white p-10 shadow-sm border-t-4 border-brand-accent hover:-translate-y-2 transition-transform duration-300">
+                    <div class="flex text-brand-accent mb-6">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-700 mb-8 italic">"שרות מקצועי ואדיב בכל שעה ומזג אויר! מלאי ומגוון מוצרים רחב המתאים לכל בית, ולכל חובב ומקצוען (בעל ידי זהב)."</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-brand-dark flex items-center justify-center text-white font-bold">A</div>
+                        <div>
+                            <h4 class="font-bold text-brand-black">Amnon Aloni</h4>
+                            <span class="text-sm text-gray-500">ישראל</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white p-10 shadow-sm border-t-4 border-brand-accent hover:-translate-y-2 transition-transform duration-300">
+                    <div class="flex text-brand-accent mb-6">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-700 mb-8 italic">"סחורה מעולה מחירים ברצפה מוצרים טובים לכל דבר אנשים נחמדים ופשוט כיף להיכנס ולקנות מלא דברים!!"</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-brand-dark flex items-center justify-center text-white font-bold">י</div>
+                        <div>
+                            <h4 class="font-bold text-brand-black">יובל חזיזה</h4>
+                            <span class="text-sm text-gray-500">ישראל</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white p-10 shadow-sm border-t-4 border-brand-accent hover:-translate-y-2 transition-transform duration-300">
+                    <div class="flex text-brand-accent mb-6">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-700 mb-8 italic">"חנות קטנה שיש בה הכל מחירים טובים ושרות מס 1"</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-brand-dark flex items-center justify-center text-white font-bold">נ</div>
+                        <div>
+                            <h4 class="font-bold text-brand-black">ניסים דמרי</h4>
+                            <span class="text-sm text-gray-500">ישראל</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Testimonial 4 -->
+                <div class="bg-white p-10 shadow-sm border-t-4 border-brand-accent hover:-translate-y-2 transition-transform duration-300">
+                    <div class="flex text-brand-accent mb-6">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-700 mb-8 italic">"שירות אמין ומצויין"</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-brand-dark flex items-center justify-center text-white font-bold">מ</div>
+                        <div>
+                            <h4 class="font-bold text-brand-black">משה ד.</h4>
+                            <span class="text-sm text-gray-500">ישראל</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 5 -->
+                <div class="bg-white p-10 shadow-sm border-t-4 border-brand-accent hover:-translate-y-2 transition-transform duration-300 md:col-span-2 lg:col-span-1">
+                    <div class="flex text-brand-accent mb-6">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-700 mb-8 italic">"שירות מקצועי, מלאי בלתי מוגבל, מחירים הוגנים"</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-brand-dark flex items-center justify-center text-white font-bold">ר</div>
+                        <div>
+                            <h4 class="font-bold text-brand-black">רותי פלח</h4>
+                            <span class="text-sm text-gray-500">ישראל</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Promo -->
+    <section class="py-24 relative parallax-bg flex items-center justify-center text-center" style="background-image: url('https://images.cdn-files-a.com/ready_uploads/media/9609947/2000_6373d209c6e1b.jpg');">
+        <div class="absolute inset-0 bg-brand-black/80"></div>
+        <div class="relative z-10 max-w-3xl mx-auto px-4">
+            <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                רוצים לקבל טיפים שווים <br>לעיצוב ושיפוץ הבית?
+            </h2>
+            <p class="text-xl text-brand-accent mb-10 font-light">
+                עקבו אחרינו בפייסבוק והישארו מעודכנים!
+            </p>
+            <a href="https://www.facebook.com/profile.php?id=100063679472561" target="_blank" class="inline-flex items-center gap-3 bg-[#1877F2] text-white px-8 py-4 text-lg font-bold hover:bg-blue-700 transition-colors duration-300 rounded-sm">
+                <i class="fab fa-facebook-f"></i>
+                למעבר לעמוד הפייסבוק
+            </a>
+        </div>
+    </section>
+
+    <!-- AI Advisor Section -->
+    <section id="ai-advisor" class="py-24 bg-brand-black text-white relative overflow-hidden">
+        <!-- Decorative bg elements -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-brand-accent rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-gray-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 translate-y-1/2"></div>
         
-        <div class="summary-box" id="summary-content">
-            <!-- Summary preview text will go here -->
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-12">
+                <h4 class="text-brand-accent font-bold tracking-widest uppercase mb-2">בינה מלאכותית לשירותכם</h4>
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">✨ יועץ העיצוב והשיפוץ החכם שלנו</h2>
+                <p class="text-gray-400 text-lg">ספרו לנו מה תרצו לעשות בבית, והמומחה הדיגיטלי שלנו ירכיב עבורכם רשימת ציוד וטיפים לביצוע - מיד ובחינם!</p>
+            </div>
+
+            <div class="bg-brand-dark p-6 md:p-10 rounded-lg shadow-2xl border border-gray-800">
+                <textarea id="ai-input" rows="4" class="w-full bg-brand-black border border-gray-700 text-white placeholder-gray-500 px-5 py-4 focus:outline-none focus:border-brand-accent transition-colors rounded-sm resize-none mb-4" placeholder="לדוגמה: אני רוצה לצבוע מחדש חדר שינה קטן כדי שייראה מואר ומרווח יותר. איזה צבעים וציוד אני צריך?"></textarea>
+                
+                <div class="flex justify-end">
+                    <button id="ai-submit-btn" class="bg-brand-accent text-brand-black px-8 py-3 font-bold hover:bg-white transition-colors duration-300 flex items-center gap-2">
+                        <span>✨ קבל ייעוץ אישי</span>
+                        <i class="fas fa-magic"></i>
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="ai-loading" class="hidden mt-8 text-center py-8">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent mb-4"></div>
+                    <p class="text-brand-accent font-medium animate-pulse">המומחה שלנו חושב ומכין לך המלצות...</p>
+                </div>
+
+                <!-- Output Area -->
+                <div id="ai-output" class="hidden mt-8 bg-brand-black border border-gray-700 p-6 md:p-8 rounded-sm text-gray-200 leading-relaxed space-y-4">
+                    <!-- Gemini response will be injected here -->
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div class="action-buttons">
-            <button class="btn-primary" onclick="copyToClipboard()">העתק תשובות לקליפבורד</button>
-            <button class="btn-success" onclick="downloadTextFile()">הורד כקובץ טקסט</button>
+    <!-- Contact & Map Section -->
+    <section id="contact" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h4 class="text-brand-accent font-bold tracking-widest uppercase mb-2">הגעה ויצירת קשר</h4>
+                <h2 class="text-3xl md:text-4xl font-bold text-brand-black">נשמח לעמוד לשירותכם</h2>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row gap-12">
+                <!-- Contact Form & Info -->
+                <div class="lg:w-1/3 space-y-10">
+                    <div class="bg-brand-gray p-8 border-t-4 border-brand-black">
+                        <h3 class="text-2xl font-bold mb-6">פרטי התקשרות</h3>
+                        <ul class="space-y-6 text-lg">
+                            <li class="flex items-start gap-4">
+                                <i class="fas fa-map-marker-alt text-brand-accent mt-1 text-xl"></i>
+                                <span>מרכז קניות אירפורט סיטי,<br>השרון 1</span>
+                            </li>
+                            <li class="flex items-center gap-4">
+                                <i class="fas fa-phone-alt text-brand-accent text-xl"></i>
+                                <a href="tel:036054003" class="hover:text-brand-accent transition-colors font-bold" dir="ltr">03-6054003</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Modern Contact Form -->
+                    <form class="space-y-4" onsubmit="event.preventDefault(); alert('ההודעה נשלחה בהצלחה! ניצור קשר בהקדם.');">
+                        <h3 class="text-xl font-bold mb-4">השאירו פרטים ונחזור אליכם:</h3>
+                        <div>
+                            <input type="text" placeholder="שם מלא" required class="w-full bg-brand-gray border border-gray-200 px-4 py-3 focus:outline-none focus:border-brand-black transition-colors">
+                        </div>
+                        <div>
+                            <input type="tel" placeholder="טלפון" required class="w-full bg-brand-gray border border-gray-200 px-4 py-3 focus:outline-none focus:border-brand-black transition-colors">
+                        </div>
+                        <div>
+                            <textarea placeholder="הודעה (אופציונלי)" rows="3" class="w-full bg-brand-gray border border-gray-200 px-4 py-3 focus:outline-none focus:border-brand-black transition-colors"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-brand-black text-white py-4 font-bold hover:bg-brand-accent transition-colors duration-300">
+                            שליחה
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Google Maps Embedded -->
+                <div class="lg:w-2/3 h-[500px] lg:h-auto bg-gray-200 relative">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3381.163351939832!2d34.91266011516142!3d32.010156981210874!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1502b48995392e91%3A0xe6a8a3df8b99d300!2sAirport%20City!5e0!3m2!1sen!2sil!4v1689255000000!5m2!1sen!2sil" 
+                        class="absolute inset-0 w-full h-full border-0" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<script>
-    const questionsData = [
-        {
-            id: 'q1',
-            section: 'חלק 1: קהל היעד והבידול שלך',
-            title: 'מי קהל היעד העיקרי שיגיע לאתר?',
-            subtitle: 'ניתן לבחר יותר מאחד',
-            type: 'checkbox',
-            options: [
-                'שכירים בכירים / מנהלים (שרוצים לעשות אופטימיזציה של מיסוי ותנאים).',
-                'עצמאיים ובעלי עסקים (שצריכים לתכנן את מכירת העסק או העברה בין-דורית).',
-                'פורשים "רגילים" בני 55-67 (שרוצים לדעת כמה כסף יהיה להם בחודש).',
-                'קהל אמיד (High Net Worth) שמחפש ניהול עושר מקיף.'
-            ]
-        },
-        {
-            id: 'q2',
-            section: 'חלק 1: קהל היעד והבידול שלך',
-            title: 'מה הבעיה הכי גדולה או החשש הכי גדול של הלקוחות שמגיעים אליך?',
-            subtitle: 'למשל: "הם מפחדים שייגמר להם הכסף", "הם מבולבלים מכל הניירת והמיסים", "הם לא יודעים מאיפה להתחיל".',
-            type: 'textarea'
-        },
-        {
-            id: 'q3',
-            section: 'חלק 1: קהל היעד והבידול שלך',
-            title: 'למה לקוחות בוחרים דווקא בך ולא במתחרים?',
-            subtitle: 'למשל: הניסיון שלי, הליווי האישי, הידע הייחודי במיסוי, המלצות וכדומה.',
-            type: 'textarea'
-        },
-        {
-            id: 'q4',
-            section: 'חלק 2: מבנה האתר והשירותים',
-            title: 'אילו שירותים יוצגו באתר?',
-            subtitle: 'סמן את כל האפשרויות הרלוונטיות',
-            type: 'checkbox',
-            options: [
-                'תכנון פרישה מקיף (הוליסטי).',
-                'קיבוע זכויות ותכנון מס בפרישה.',
-                'בדיקת כפל ביטוחים ואופטימיזציה של תיק פנסיוני.',
-                'ניהול עושר / השקעות פיננסיות.',
-                'הרצאות / סדנאות לארגונים.'
-            ]
-        },
-        {
-            id: 'q5',
-            section: 'חלק 2: מבנה האתר והשירותים',
-            title: 'מהי הפעולה הכי חשובה שאתה רוצה שהגולש יעשה באתר?',
-            subtitle: 'לבחור אפשרות אחת מרכזית',
-            type: 'radio',
-            options: [
-                'ישאיר פרטים בטופס כדי שאחזור אליו לשיחת אפיון.',
-                'יתאם איתי פגישת היכרות ישירות ביומן דיגיטלי (כמו Calendly).',
-                'יוריד מדריך מקצועי בחינם (כדי שייכנס לרשימת התפוצה שלי).',
-                'יתקשר אליי ישירות בטלפון או ישלח וואטסאפ.'
-            ]
-        },
-        {
-            id: 'q6',
-            section: 'חלק 3: עיצוב, השראה וחומרים קיימים',
-            title: 'איזה סגנון עיצובי אתה מדמיין לאתר שלך?',
-            subtitle: 'בחר את השילוב המועדף',
-            type: 'radio',
-            options: [
-                'מוסדי, סולידי ויוקרתי (צבעי כחול כהה, אפור, זהב, גופנים רציניים).',
-                'מודרני, נקי ונגיש (צבעי לבן, ירוק, תכלת, גופנים עגולים וקלילים יותר).',
-                'אישי וחם (שילוב של צבעי אדמה, תמונות אותנטיות, משדר פגישה בגובה העיניים).'
-            ]
-        },
-        {
-            id: 'q7',
-            section: 'חלק 3: עיצוב, השראה וחומרים קיימים',
-            title: 'השראה מהמתחרים (בארץ או בעולם):',
-            subtitle: 'האם יש 1-2 אתרים (לאו דווקא מהתחום שלך) שאתה אוהב את המראה שלהם או את הנוחות שלהם? אנא צרף קישורים.',
-            type: 'textarea'
-        },
-        {
-            id: 'q8',
-            section: 'חלק 3: עיצוב, השראה וחומרים קיימים',
-            title: 'אילו חומרים כבר יש לך מוכנים?',
-            subtitle: 'סמן את כל מה שקיים',
-            type: 'checkbox',
-            options: [
-                'לוגו וספר מיתוג/צבעים.',
-                'תמונות תדמית מקצועיות שלי.',
-                'המלצות כתובות מלקוחות (או צילומי מסך מוואטסאפ).',
-                'טקסטים או מאמרים שכתבתי בעבר.'
-            ]
-        }
-    ];
+    <!-- Minimalist Footer -->
+    <footer class="bg-brand-black text-white py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <img src="https://images.cdn-files-a.com/uploads/9102992/400_660c035100a7b.png" alt="לוגו" class="h-8 w-auto filter brightness-0 invert">
+                <span class="font-bold text-lg">צבע טרי</span>
+            </div>
+            
+            <nav class="flex flex-wrap justify-center gap-6 text-sm text-gray-400">
+                <a href="#hero" class="hover:text-white transition-colors">בית</a>
+                <a href="#about" class="hover:text-white transition-colors">אודות</a>
+                <a href="#gallery" class="hover:text-white transition-colors">גלריה</a>
+                <a href="#promotions" class="hover:text-white transition-colors">מבצעים</a>
+                <a href="#contact" class="hover:text-white transition-colors">מיקום וצור קשר</a>
+            </nav>
 
-    let currentStep = 0;
-    const userAnswers = {};
+            <div class="text-gray-500 text-sm text-center md:text-right">
+                זכויות יוצרים © 2026 כל הזכויות שמורות
+            </div>
+        </div>
+    </footer>
 
-    function startQuestionnaire() {
-        document.getElementById('intro-screen').classList.add('hidden');
-        document.getElementById('quiz-content').style.display = 'block';
-        renderQuestions();
-        updateStep();
-    }
+    <!-- Scripts for Interaction -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sticky Glass Header
+            const header = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                    header.classList.replace('py-4', 'py-2');
+                } else {
+                    header.classList.remove('scrolled');
+                    header.classList.replace('py-2', 'py-4');
+                }
+            });
 
-    function renderQuestions() {
-        const container = document.getElementById('questions-container');
-        container.innerHTML = '';
+            // Mobile Menu Toggle
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileLinks = document.querySelectorAll('.mobile-link');
+            
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                // Icon toggle
+                const icon = mobileBtn.querySelector('i');
+                if (mobileMenu.classList.contains('hidden')) {
+                    icon.classList.replace('fa-times', 'fa-bars');
+                } else {
+                    icon.classList.replace('fa-bars', 'fa-times');
+                }
+            });
 
-        questionsData.forEach((q, index) => {
-            const card = document.createElement('div');
-            card.className = `question-card ${index === 0 ? 'active' : ''}`;
-            card.id = `step-${index}`;
+            // Close mobile menu on link click
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    mobileBtn.querySelector('i').classList.replace('fa-times', 'fa-bars');
+                });
+            });
 
-            const title = document.createElement('h2');
-            title.innerText = q.title;
-            card.appendChild(title);
+            // --- Simulated AI Advisor Logic (No API Required) ---
+            const aiInput = document.getElementById('ai-input');
+            const aiSubmitBtn = document.getElementById('ai-submit-btn');
+            const aiLoading = document.getElementById('ai-loading');
+            const aiOutput = document.getElementById('ai-output');
 
-            if (q.subtitle) {
-                const sub = document.createElement('p');
-                sub.className = 'subtitle';
-                sub.innerText = q.subtitle;
-                card.appendChild(sub);
+            // פונקציית הדמיה שמחזירה תשובה קבועה ומעוצבת ללא צורך ב-API
+            async function fetchSimulatedAdvice(userText) {
+                // הדמיית השהייה של חשיבה (2 שניות)
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                return `
+                    <p>איזה פרויקט נהדר! נשמח לעזור לכם להפוך את החזון למציאות.</p>
+                    <h3>🛒 ציוד מומלץ מהחנות שלנו:</h3>
+                    <ul>
+                        <li>צבע איכותי לקירות פנים (גוונים בהירים מומלצים לתחושת מרחב)</li>
+                        <li>רולר ומברשות לצביעה מדויקת בפינות</li>
+                        <li>מסקינטייפ (סרט הדבקה) וניילון להגנה על הריצוף והפאנלים</li>
+                    </ul>
+                    <h3>💡 הטיפים של המומחה:</h3>
+                    <ul>
+                        <li><b>הכנת השטח:</b> לפני שמתחילים, ודאו שהקיר נקי, יבש וללא קילופים. תמיד כדאי להעביר סמרטוט לח להסרת אבק.</li>
+                        <li><b>שיטת הצביעה:</b> צבעו את הפינות קודם בעזרת מברשת, ולאחר מכן עברו על המשטחים הגדולים עם רולר בצורת W.</li>
+                        <li><b>תאורה:</b> עבדו בשעות היום עם תאורה טבעית כדי לוודא כיסוי אחיד ללא פסים.</li>
+                    </ul>
+                `;
             }
 
-            if (q.type === 'textarea') {
-                const textarea = document.createElement('textarea');
-                textarea.placeholder = 'התשובה שלך כאן...';
-                textarea.id = `input-${q.id}`;
-                textarea.value = userAnswers[q.id] || '';
-                textarea.addEventListener('input', (e) => {
-                    userAnswers[q.id] = e.target.value;
-                });
-                card.appendChild(textarea);
-            } else {
-                const grid = document.createElement('div');
-                grid.className = 'options-grid';
+            aiSubmitBtn.addEventListener('click', async () => {
+                const userText = aiInput.value.trim();
+                if (!userText) return;
 
-                q.options.forEach((opt) => {
-                    const label = document.createElement('label');
-                    label.className = 'option-label';
-                    
-                    const input = document.createElement('input');
-                    input.type = q.type;
-                    input.name = q.id;
-                    input.value = opt;
+                // UI State update
+                aiOutput.classList.add('hidden');
+                aiLoading.classList.remove('hidden');
+                aiSubmitBtn.disabled = true;
+                aiSubmitBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-                    // Restore state if answered
-                    if (q.type === 'checkbox') {
-                        if (userAnswers[q.id] && userAnswers[q.id].includes(opt)) {
-                            input.checked = true;
-                            label.classList.add('selected');
-                        }
-                    } else if (q.type === 'radio') {
-                        if (userAnswers[q.id] === opt) {
-                            input.checked = true;
-                            label.classList.add('selected');
-                        }
-                    }
+                // Fetch AI response (Simulated)
+                const adviceHtml = await fetchSimulatedAdvice(userText);
 
-                    input.addEventListener('change', (e) => {
-                        if (q.type === 'checkbox') {
-                            if (!userAnswers[q.id]) userAnswers[q.id] = [];
-                            if (e.target.checked) {
-                                userAnswers[q.id].push(opt);
-                            } else {
-                                userAnswers[q.id] = userAnswers[q.id].filter(item => item !== opt);
-                            }
-                        } else {
-                            userAnswers[q.id] = opt;
-                        }
-                        
-                        // Update UI selection style
-                        const labels = grid.querySelectorAll('.option-label');
-                        labels.forEach(lbl => {
-                            const inp = lbl.querySelector('input');
-                            if (inp.checked) lbl.classList.add('selected');
-                            else lbl.classList.remove('selected');
-                        });
-                    });
+                // Update output and UI
+                aiOutput.innerHTML = adviceHtml;
+                aiLoading.classList.add('hidden');
+                aiOutput.classList.remove('hidden');
+                
+                // Style injected HTML dynamically
+                const h3Elements = aiOutput.querySelectorAll('h3');
+                h3Elements.forEach(h3 => h3.classList.add('text-xl', 'font-bold', 'text-brand-accent', 'mt-6', 'mb-2'));
+                const ulElements = aiOutput.querySelectorAll('ul');
+                ulElements.forEach(ul => ul.classList.add('list-disc', 'list-inside', 'space-y-2', 'mr-2'));
 
-                    label.appendChild(input);
-                    
-                    const txt = document.createElement('span');
-                    txt.className = 'option-text';
-                    txt.innerText = opt;
-                    label.appendChild(txt);
-
-                    grid.appendChild(label);
-                });
-                card.appendChild(grid);
-            }
-
-            container.appendChild(card);
+                aiSubmitBtn.disabled = false;
+                aiSubmitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
         });
-    }
-
-    function updateStep() {
-        // Toggle question visibility
-        const cards = document.querySelectorAll('.question-card');
-        cards.forEach((card, idx) => {
-            if (idx === currentStep) card.classList.add('active');
-            else card.classList.remove('active');
-        });
-
-        // Update progress info
-        const q = questionsData[currentStep];
-        document.getElementById('section-tag').innerText = q.section;
-        document.getElementById('step-counter').innerText = `שאלה ${currentStep + 1} מתוך ${questionsData.length}`;
-        
-        const pct = ((currentStep + 1) / questionsData.length) * 100;
-        document.getElementById('progress-bar').style.width = `${pct}%`;
-
-        // Update button text / states
-        const backBtn = document.getElementById('btn-back');
-        const nextBtn = document.getElementById('btn-next');
-
-        backBtn.disabled = currentStep === 0;
-
-        if (currentStep === questionsData.length - 1) {
-            nextBtn.innerText = 'סיום ואפיון';
-            nextBtn.className = 'btn-success';
-        } else {
-            nextBtn.innerText = 'המשך';
-            nextBtn.className = 'btn-primary';
-        }
-    }
-
-    function nextStep() {
-        if (currentStep < questionsData.length - 1) {
-            currentStep++;
-            updateStep();
-        } else {
-            showEndScreen();
-        }
-    }
-
-    function prevStep() {
-        if (currentStep > 0) {
-            currentStep--;
-            updateStep();
-        }
-    }
-
-    function generateSummaryText() {
-        let txt = "📋 סיכום שאלון אפיון אתר CFP\n";
-        txt += "====================================\n\n";
-        
-        questionsData.forEach((q) => {
-            txt += `❓ ${q.title}\n`;
-            const ans = userAnswers[q.id];
-            if (!ans || (Array.isArray(ans) && ans.length === 0)) {
-                txt += `↳ לא נענה\n\n`;
-            } else if (Array.isArray(ans)) {
-                ans.forEach(item => {
-                    txt += `  - ${item}\n`;
-                });
-                txt += `\n`;
-            } else {
-                txt += `  ↳ ${ans}\n\n`;
-            }
-        });
-        return txt;
-    }
-
-    function showEndScreen() {
-        document.getElementById('quiz-content').style.display = 'none';
-        const endScreen = document.getElementById('end-screen');
-        endScreen.classList.add('active');
-
-        const summaryContent = document.getElementById('summary-content');
-        const summaryText = generateSummaryText();
-        summaryContent.innerHTML = summaryText.replace(/\n/g, '<br>');
-    }
-
-    function copyToClipboard() {
-        const text = generateSummaryText();
-        navigator.clipboard.writeText(text).then(() => {
-            alert('התשובות הועתקו לקליפבורד בהצלחה! ניתן להדביק בוואטסאפ או במייל.');
-        }).catch(err => {
-            alert('שגיאה בהעתקה, אנא העתק ידנית מהתיבה.');
-        });
-    }
-
-    function downloadTextFile() {
-        const text = generateSummaryText();
-        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'אפיון_אתר_פרישה_תשובות.txt';
-        link.click();
-    }
-</script>
-
+    </script>
 </body>
 </html>
